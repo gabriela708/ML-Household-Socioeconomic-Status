@@ -1,0 +1,43 @@
+seed: 42
+
+paths:
+  raw: data/raw
+  external: data/external
+  interim: data/interim
+  processed: data/processed
+
+# Módulos GEIH diciembre 2025 (separador ';', decimal ',')
+raw_files:
+  hogar_vivienda:           {file: hogar_vivienda.csv,           encoding: utf-8,  nivel: hogar}
+  personas_salud_educacion: {file: personas_salud_educacion.csv, encoding: utf-8,  nivel: persona}
+  fuerza_trabajo:           {file: fuerza_trabajo.csv,           encoding: latin-1, nivel: persona}
+  ocupados:                 {file: ocupados.csv,                 encoding: latin-1, nivel: persona}
+  no_ocupados:              {file: no_ocupados.csv,              encoding: utf-8,  nivel: persona}
+  otras_formas_trabajo:     {file: otras_formas_trabajo.csv,     encoding: utf-8,  nivel: persona}
+  otros_ingresos_impuestos: {file: otros_ingresos_impuestos.csv, encoding: latin-1, nivel: persona}
+  migracion:                {file: migracion.csv,                encoding: latin-1, nivel: persona}
+
+keys:
+  hogar: [DIRECTORIO, SECUENCIA_P, HOGAR]
+  persona: [DIRECTORIO, SECUENCIA_P, HOGAR, ORDEN]
+
+poblacion:
+  clase: 1          # 1 = cabecera
+
+# Fuente: DANE, boletín de pobreza monetaria 2025 (pesos por persona al mes)
+lineas_pobreza_2025:
+  nacional: 482041
+  cabeceras: 532906
+  rural: 310029
+
+# Umbrales de clases sociales DANE 2024 actualizados con IPC 2025 (5,1 %)
+umbrales_clases_2025:
+  vulnerable_max: 943784     # 897.987 * 1.051
+  media_max: 5081916         # 4.835.315 * 1.051
+
+clases: {0: Pobre, 1: Vulnerable, 2: Media, 3: Alta}
+
+split:
+  test_size: 0.20
+  n_folds: 5
+  group: DIRECTORIO
