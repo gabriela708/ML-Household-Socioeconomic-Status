@@ -1,0 +1,29 @@
+# Reemplazar los alias por los usuarios reales de GitHub.
+*                               @silva @juanita @gaby
+
+/src/ses/io.py                  @silva
+/src/ses/data/                  @silva
+/data/external/                 @silva
+/scripts/make_target.py         @silva
+/notebooks/01_*                 @silva
+/notebooks/04_*                 @silva
+/docs/decisiones.md             @silva
+
+/src/ses/features/              @juanita
+/src/ses/pipeline.py            @juanita
+/scripts/make_features.py       @juanita
+/notebooks/02_*                 @juanita
+/docs/matriz_fuga.md            @juanita
+/docs/diccionario_variables.md  @juanita
+/docs/reduccion_muestra.md      @juanita
+/data/processed/split_indices.json @juanita
+
+/src/ses/models/                @gaby
+/src/ses/evaluation/            @gaby
+/scripts/run_cv.py              @gaby
+/notebooks/03_*                 @gaby
+/notebooks/05_*                 @gaby
+/tests/                         @gaby
+
+/docs/contrato_datos.md         @silva @juanita @gaby
+/docs/informe/                  @silva @juanita @gaby
