@@ -1,29 +1,29 @@
 # Reemplazar los alias por los usuarios reales de GitHub.
-*                               @silva @juanita @gaby
+*                               @Silva-Geneticist @Juanita-gomsa @gabriela708
 
-/src/ses/io.py                  @silva
-/src/ses/data/                  @silva
-/data/external/                 @silva
-/scripts/make_target.py         @silva
-/notebooks/01_*                 @silva
-/notebooks/04_*                 @silva
-/docs/decisiones.md             @silva
+/src/ses/io.py                  @Silva-Geneticist
+/src/ses/data/                  @sSilva-Geneticist
+/data/external/                 @Silva-Geneticist
+/scripts/make_target.py         @Silva-Geneticist
+/notebooks/01_*                 @Silva-Geneticist
+/notebooks/04_*                 @Silva-Geneticist
+/docs/decisiones.md             @Silva-Geneticist
 
-/src/ses/features/              @juanita
-/src/ses/pipeline.py            @juanita
-/scripts/make_features.py       @juanita
-/notebooks/02_*                 @juanita
-/docs/matriz_fuga.md            @juanita
-/docs/diccionario_variables.md  @juanita
-/docs/reduccion_muestra.md      @juanita
-/data/processed/split_indices.json @juanita
+/src/ses/features/              @Juanita-gomsa
+/src/ses/pipeline.py            @Juanita-gomsa
+/scripts/make_features.py       @Juanita-gomsa
+/notebooks/02_*                 @Juanita-gomsa
+/docs/matriz_fuga.md            @Juanita-gomsa
+/docs/diccionario_variables.md  @Juanita-gomsa
+/docs/reduccion_muestra.md      @Juanita-gomsa
+/data/processed/split_indices.json @Juanita-gomsa
 
-/src/ses/models/                @gaby
-/src/ses/evaluation/            @gaby
-/scripts/run_cv.py              @gaby
-/notebooks/03_*                 @gaby
-/notebooks/05_*                 @gaby
-/tests/                         @gaby
+/src/ses/models/                @gabriela708
+/src/ses/evaluation/            @gabriela708
+/scripts/run_cv.py              @gabriela708
+/notebooks/03_*                 @gabriela708
+/notebooks/05_*                 @gabriela708
+/tests/                         @gabriela708
 
-/docs/contrato_datos.md         @silva @juanita @gaby
-/docs/informe/                  @silva @juanita @gaby
+/docs/contrato_datos.md         @Silva-Geneticist @juanita @gabriela708
+/docs/informe/                  @Silva-Geneticist @juanita @gabriela708
