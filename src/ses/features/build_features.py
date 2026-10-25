@@ -9,6 +9,7 @@ Salida:   data/processed/X_hogar.parquet           (contrato de datos)
 
 Uso:      python src/ses/features/build_features.py
 """
+# %%
 import sys
 from pathlib import Path
 
@@ -121,7 +122,7 @@ def cargar_datos():
 # ---------------------------------------------------------------------------
 def variables_vivienda(hogar):
     """Paso 3: vivienda (bloque B), tamaño del hogar (bloque A) y CLASE para filtrar."""
-    return hogar[["hogar_id", "CLASE", "P6008"] + COLS_VIVIENDA].copy()
+    return hogar[["hogar_id", "CLASE", "DPTO", "P6008"] + COLS_VIVIENDA].copy()
 
 
 def variables_jefe(personas):
@@ -220,6 +221,10 @@ def filtrar_muestra(X):
 
     X_cab = X[X["clase"] == 1].drop(columns=["clase"])
     embudo["Cabeceras (clase = 1)"] = len(X_cab)
+    # departamentos con cobertura en la base de pobreza del DANE (decisión 2)
+    DPTOS_SIN_COBERTURA = [88, 81, 85, 86, 91, 94, 95, 97, 99]
+    X_cab = X_cab[~X_cab["DPTO"].isin(DPTOS_SIN_COBERTURA)].drop(columns=["DPTO"])
+    embudo["Con cobertura en pobreza DANE"] = len(X_cab)
 
     completo = X_cab.notna().all(axis=1)
     X_final = X_cab[completo].copy()
