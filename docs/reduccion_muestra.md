@@ -11,11 +11,10 @@
 | Casos completos | 19.660 | Sin vacíos en ninguno de los 38 predictores |
 
 ## Causas de exclusión
-
 | Causa | Hogares |
 |---|---|
-| Productos financieros (P5222): respondió "no sabe" (9) o no marcó ninguna opción (19) | 28 |
-| Estrato (P4030S1A1): "no sabe" | 16 |
+| Productos financieros (P5222): respondió "no sabe" o no marcó ninguna opción | 25 |
+| Estrato (P4030S1A1): "no sabe" | 3 |
 | Afiliación a salud: todos los miembros respondieron "no sabe" | 2 |
 
 Antes de este filtro se recodificaron los vacíos que tenían significado, para no perder hogares de forma injustificada: las opciones no marcadas de P5222 (= 0), el combustible de hogares que no cocinan (= 0), el estrato de hogares sin energía (= 7) y los hogares sin ocupados (= 0). Sin esa revisión, la pregunta de productos financieros habría eliminado casi toda la muestra.
@@ -40,4 +39,3 @@ Antes de este filtro se recodificaron los vacíos que tenían significado, para 
 
 Los hogares excluidos tienen un perfil más vulnerable: menor acceso a alcantarillado y gas natural, menos cuartos, menos cotizantes a pensión y mayor proporción en régimen subsidiado.Los 30 excluidos (0,15 % de la población) pero son tan pocos que no cambian la muestra.
 
-**Pendiente:** cuando esté `y_hogar.parquet`, agregar la distribución de las clases SES en incluidos y excluidos.
