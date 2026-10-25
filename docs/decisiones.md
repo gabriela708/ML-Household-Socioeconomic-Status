@@ -21,3 +21,7 @@
 | 17 | 2026-10-25 | `prop_dependientes` = (menores de 15 + mayores de 65) / total de personas | Razón de dependencia | La razón divide por las personas de 15–64 años y no existe en hogares sin ellas; excluirlos habría sesgado la muestra contra los hogares de solo adultos mayores | Juanita |
 | 18 | 2026-10-25 | Servicios `tiene_*` recodificados a 1 sí / 0 no | Códigos DANE 1 / 2 | Legibilidad; no cambia la información | Juanita |
 | 19 | 2026-10-25 | `X_hogar.parquet`: 38 predictores y 19.660 hogares (19.690 de la población menos 30 sin casos completos) | ~25 predictores; todas las cabeceras | P5222 genera 10 binarias y la edad 5 variables de composición. Población alineada con la decisión 2. Detalle en `reduccion_muestra.md` | Juanita |
+| 20 | 2026-10-25 | Partición 80/20 con `StratifiedGroupKFold`, estratificada por `ses` y agrupada por `DIRECTORIO`: 15.728 hogares de entrenamiento y 3.932 de prueba | `train_test_split` sin agrupar | Conserva la prevalencia de las 4 clases (clave para Alta, 4,4 %) y evita que hogares de una misma vivienda queden a ambos lados | Juanita |
+| 21 | 2026-10-25 | 5 folds de validación cruzada solo dentro del 80 %, con el mismo criterio | Validación cruzada sobre todos los hogares | La prueba queda sellada hasta la entrega final (decisión 7) | Juanita |
+| 22 | 2026-10-25 | `split_indices.json` guarda los `hogar_id`, con `seed = 42`, y se versiona en git | Guardar posiciones de fila | Las tres usan los mismos folds y la partición se reproduce idéntica | Juanita |
+
