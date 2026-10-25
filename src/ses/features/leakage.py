@@ -2,14 +2,6 @@
 
 Responsable: Juanita. Día 1.
 """
-"""Lista negra de variables monetarias y assert_no_leakage(X).
-
-Responsable: Juanita. Día 1.
-"""
-"""Lista negra de variables monetarias y assert_no_leakage(X).
-
-Responsable: Juanita. Día 1.
-"""
 
 EN_TARGET = {
     "INGLABO",               # ingreso laboral
