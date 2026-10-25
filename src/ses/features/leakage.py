@@ -2,13 +2,21 @@
 
 Responsable: Juanita. Día 1.
 """
-#%%
+"""Lista negra de variables monetarias y assert_no_leakage(X).
+
+Responsable: Juanita. Día 1.
+"""
+"""Lista negra de variables monetarias y assert_no_leakage(X).
+
+Responsable: Juanita. Día 1.
+"""
+
 EN_TARGET = {
     "INGLABO",               # ingreso laboral
     "P6500",                 # salario
     "P6750",                 # ganancia del trabajo independiente
     "P7500S2", "P7500S2A1",  # recibió pensión / monto
-    "P5130",                 # arriendo imputado (confirmar con target.py)
+    "P5130",                 # arriendo imputado (ingpcug lo incluye, decisión 1)
     "ypc", "ses",            # del contrato: ingreso per cápita y el target
     "ingpcug", "li", "lp", "pobre", "indigente",   # base de pobreza DANE (target de Silva)
 }
@@ -38,4 +46,3 @@ if __name__ == "__main__":
         print("Prueba 2 FALLÓ: el guardia no detectó la fuga")
     except AssertionError as e:
         print("Prueba 2 OK: detectó la fuga ->", e)
-# %%

@@ -1,7 +1,7 @@
 # Diccionario de variables (38 predictores de X_hogar.parquet)
 
-Unidad: hogar de cabecera (CLASE = 1). Llave: `hogar_id` (no es predictor).
-Faltantes: hogares de cabecera con el dato vacío antes del filtro de casos completos.
+Unidad: hogar de cabecera (CLASE = 1) con cobertura en la base de pobreza del DANE (19.690). Llave: `hogar_id` (no es predictor).
+Faltantes: hogares de la población con el dato vacío antes del filtro de casos completos.
 Los vacíos con significado se recodificaron (ver columna Valores) y no cuentan como faltantes.
 
 | Nombre final | Código GEIH | Módulo | Pregunta | Tipo | Valores / recodificación | Faltantes | Bloque |
@@ -22,23 +22,23 @@ Los vacíos con significado se recodificaron (ver columna Valores) y no cuentan 
 | tiene_alcantarillado | P4030S3 | hogar_vivienda | ¿Cuenta con alcantarillado? | binario | 1 sí / 0 no | 0 | B |
 | tiene_recoleccion_basuras | P4030S4 | hogar_vivienda | ¿Cuenta con recolección de basuras? | binario | 1 sí / 0 no | 0 | B |
 | tiene_acueducto | P4030S5 | hogar_vivienda | ¿Cuenta con acueducto? | binario | 1 sí / 0 no | 0 | B |
-| estrato | P4030S1A1 | hogar_vivienda | Estrato para tarifa (energía) | nominal | 0 sin estrato, 1–6 estrato, **7 = sin energía** (código creado: la pregunta no se hace si P4030S1 = 2). 9 = no sabe → vacío | 16 | B |
+| estrato | P4030S1A1 | hogar_vivienda | Estrato para tarifa (energía) | nominal | 0 sin estrato, 1–6 estrato, **7 = sin energía** (código creado: la pregunta no se hace si P4030S1 = 2). 9 = no sabe → vacío | 3 | B |
 | n_cuartos | P5000 | hogar_vivienda | Número de cuartos de la vivienda | numérico | | 0 | B |
 | n_dormitorios | P5010 | hogar_vivienda | Cuartos en que duermen las personas del hogar | numérico | | 0 | B |
 | tipo_sanitario | P5020 | hogar_vivienda | Tipo de servicio sanitario | nominal | códigos DANE | 0 | B |
 | lugar_cocina | P5070 | hogar_vivienda | Lugar donde preparan los alimentos | nominal | códigos DANE; 6 = no preparan alimentos | 0 | B |
 | combustible_cocina | P5080 | hogar_vivienda | Energía o combustible para cocinar | nominal | códigos DANE. **0 = no cocina** (código creado: no se pregunta si P5070 = 6) | 0 | B |
 | tenencia_vivienda | P5090 | hogar_vivienda | La vivienda es propia, en arriendo, usufructo… | nominal | códigos DANE | 0 | B |
-| fin_cuenta_corriente | P5222S1 | hogar_vivienda | Productos financieros: cuenta corriente | binario | selección múltiple: 1 marcó, vacío → 0 | 28 | C |
-| fin_cuenta_ahorros | P5222S2 | hogar_vivienda | Productos financieros: cuenta de ahorros | binario | igual | 28 | C |
-| fin_cdt | P5222S3 | hogar_vivienda | Productos financieros: CDT | binario | igual | 28 | C |
-| fin_prestamo_vivienda | P5222S4 | hogar_vivienda | Productos financieros: préstamo de vivienda | binario | igual | 28 | C |
-| fin_prestamo_vehiculo | P5222S5 | hogar_vivienda | Productos financieros: préstamo de vehículo | binario | igual | 28 | C |
-| fin_prestamo_libre_inversion | P5222S6 | hogar_vivienda | Productos financieros: préstamo de libre inversión | binario | igual | 28 | C |
-| fin_tarjeta_credito | P5222S7 | hogar_vivienda | Productos financieros: tarjeta de crédito | binario | igual | 28 | C |
-| fin_otro | P5222S8 | hogar_vivienda | Productos financieros: otro | binario | igual | 28 | C |
-| fin_ninguno | P5222S9 | hogar_vivienda | Productos financieros: ninguno | binario | igual | 28 | C |
-| fin_billetera_movil | P5222S11 | hogar_vivienda | Productos financieros: plataforma móvil (Daviplata, Nequi…) | binario | igual | 28 | C |
+| fin_cuenta_corriente | P5222S1 | hogar_vivienda | Productos financieros: cuenta corriente | binario | selección múltiple: 1 marcó, vacío → 0 | 25 | C |
+| fin_cuenta_ahorros | P5222S2 | hogar_vivienda | Productos financieros: cuenta de ahorros | binario | igual | 25 | C |
+| fin_cdt | P5222S3 | hogar_vivienda | Productos financieros: CDT | binario | igual | 25 | C |
+| fin_prestamo_vivienda | P5222S4 | hogar_vivienda | Productos financieros: préstamo de vivienda | binario | igual | 25 | C |
+| fin_prestamo_vehiculo | P5222S5 | hogar_vivienda | Productos financieros: préstamo de vehículo | binario | igual | 25 | C |
+| fin_prestamo_libre_inversion | P5222S6 | hogar_vivienda | Productos financieros: préstamo de libre inversión | binario | igual | 25 | C |
+| fin_tarjeta_credito | P5222S7 | hogar_vivienda | Productos financieros: tarjeta de crédito | binario | igual | 25 | C |
+| fin_otro | P5222S8 | hogar_vivienda | Productos financieros: otro | binario | igual | 25 | C |
+| fin_ninguno | P5222S9 | hogar_vivienda | Productos financieros: ninguno | binario | igual | 25 | C |
+| fin_billetera_movil | P5222S11 | hogar_vivienda | Productos financieros: plataforma móvil (Daviplata, Nequi…) | binario | igual | 25 | C |
 | prop_afiliados_salud | P6090 | personas | Proporción de personas del hogar afiliadas a salud | numérico | 0 a 1. P6090: 1 sí → 1, 2 no → 0, 9 no sabe → vacío (no cuenta en el promedio) | 2 | C |
 | prop_subsidiado | P6100 | personas | Proporción de personas en régimen subsidiado | numérico | 0 a 1. P6100 = 3 → 1 | 0 | C |
 | n_ocupados | (registros en Ocupados) | ocupados | Personas ocupadas del hogar | numérico | conteo. **Vacío → 0** (hogar sin ocupados) | 0 | C |
@@ -46,5 +46,5 @@ Los vacíos con significado se recodificaron (ver columna Valores) y no cuentan 
 | posicion_ocup_jefe | P6430 | ocupados | Posición ocupacional del jefe | nominal | códigos DANE. **0 = jefe no ocupado** (código creado) | 0 | C |
 
 **Notas**
-- `P5222S10` ("no sabe") no es predictor. Los 9 hogares que la marcaron y los 19 que no marcaron ninguna opción quedan con vacío en todas las `fin_*` (los 28 faltantes).
+- `P5222S10` ("no sabe") no es predictor. Los 8 hogares que la marcaron y los 17 que no marcaron ninguna opción quedan con vacío en todas las `fin_*` (los 25 faltantes).
 - Las variables `fin_*`, `estrato`, `prop_subsidiado` y `n_cotizantes` son proxies fuertes de capacidad económica: ver justificación en `matriz_fuga.md`.
