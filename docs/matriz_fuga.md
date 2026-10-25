@@ -22,7 +22,9 @@ Bloques: **A** (paper: jefe y tamaño del hogar), **B** (A + vivienda), **C** (B
 | P5020 | hogar_vivienda | tipo de sanitario | no | no | Permitida | B | |
 | P5070 / P5080 | hogar_vivienda | lugar y combustible para cocinar | no | no | Permitida | B | |
 | P5090 | hogar_vivienda | tenencia de la vivienda | no | no | Permitida | B | |
-| P5222S1–S11 | hogar_vivienda | bienes del hogar | no | no | Permitida | B | verificar descripción en diccionario DANE |
+| P5222S1–S11 | hogar_vivienda | productos financieros que usa el hogar (cuenta corriente, ahorros, CDT, préstamos, tarjeta de crédito, billetera móvil…) | no | no | Permitida con justificación | C | selección múltiple: vacío = no lo usa (0). Proxy fuerte de capacidad económica|
+| P5222S10 | hogar_vivienda | productos financieros: "no sabe" | no | no | Excluida | — | no es predictor; los hogares con "no sabe" o sin ninguna opción marcada quedan con vacío y salen en casos completos (28 hogares) |
+| P5222S8A1 | hogar_vivienda | texto "¿cuál?" de la opción Otro | no | no | Excluida | — | texto libre, no es predictor |
 | P4030S1A1 | hogar_vivienda | estrato | no | no | Permitida con justificación | B | describe el entorno de la vivienda, no el ingreso; se observa en el recibo de servicios. 0 = sin estrato (categoría), 9 = no sabe |
 | P6430 | ocupados | posición ocupacional del jefe | no | no | Permitida | C | se agrega a hogar como posición del jefe |
 | P6090 | personas | afiliación a salud | no | no | Permitida | C | se agrega como proporción de afiliados del hogar |
@@ -34,7 +36,8 @@ Bloques: **A** (paper: jefe y tamaño del hogar), **B** (A + vivienda), **C** (B
 | P7500S2 / P7500S2A1 | otros_ingresos | recibió pensión / monto | sí | sí | Prohibida | — | la pensión se suma al ingreso del hogar |
 | P5100 | hogar_vivienda | cuota mensual de la vivienda | sí | no | Prohibida | — | monto en pesos |
 | P5110 | hogar_vivienda | cuota de amortización | sí | no | Prohibida | — | monto en pesos |
-| P5130 | hogar_vivienda | arriendo estimado (vivienda propia) | sí | sí (confirmar) | Prohibida | — | monto en pesos; el DANE lo suma al ingreso de hogares propietarios |
+| P5130 | hogar_vivienda | arriendo estimado (vivienda propia) | sí | sí | Prohibida | — | monto en pesos; ingpcug incluye la imputación de arriendo (decisión 1) |
 | P5140 | hogar_vivienda | arriendo pagado | sí | no | Prohibida | — | monto en pesos |
+| ingpcug, ypc, li, lp, pobre, indigente | base pobreza DANE | ingreso per cápita y líneas de pobreza | sí | sí | Prohibida | — | columnas exclusivas del target (decisiones 1 y 9) |
+| DPTO | hogar_vivienda | departamento | no | no | No es predictor | — | solo se usa para filtrar la población con cobertura en pobreza DANE (decisión 2) |
 
-Pendiente: confirmar con quien construye el target la lista exacta de variables de ingreso usadas.
