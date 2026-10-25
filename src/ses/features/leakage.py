@@ -10,6 +10,7 @@ EN_TARGET = {
     "P7500S2", "P7500S2A1",  # recibió pensión / monto
     "P5130",                 # arriendo imputado (confirmar con target.py)
     "ypc", "ses",            # del contrato: ingreso per cápita y el target
+    "ingpcug", "li", "lp", "pobre", "indigente",   # base de pobreza DANE (target de Silva)
 }
 MONETARIAS = {
     "P5100",  # cuota mensual de la vivienda

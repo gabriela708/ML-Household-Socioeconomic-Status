@@ -36,7 +36,8 @@ Bloques: **A** (paper: jefe y tamaño del hogar), **B** (A + vivienda), **C** (B
 | P7500S2 / P7500S2A1 | otros_ingresos | recibió pensión / monto | sí | sí | Prohibida | — | la pensión se suma al ingreso del hogar |
 | P5100 | hogar_vivienda | cuota mensual de la vivienda | sí | no | Prohibida | — | monto en pesos |
 | P5110 | hogar_vivienda | cuota de amortización | sí | no | Prohibida | — | monto en pesos |
-| P5130 | hogar_vivienda | arriendo estimado (vivienda propia) | sí | sí (confirmar) | Prohibida | — | monto en pesos; el DANE lo suma al ingreso de hogares propietarios |
+| P5130 | hogar_vivienda | arriendo estimado (vivienda propia) | sí | sí | Prohibida | — | monto en pesos; ingpcug incluye la imputación de arriendo (decisión 1) |
 | P5140 | hogar_vivienda | arriendo pagado | sí | no | Prohibida | — | monto en pesos |
+| ingpcug, ypc, li, lp, pobre, indigente | base pobreza DANE | ingreso per cápita y líneas de pobreza | sí | sí | Prohibida | — | columnas exclusivas del target (decisiones 1 y 9) |
+| DPTO | hogar_vivienda | departamento | no | no | No es predictor | — | solo se usa para filtrar la población con cobertura en pobreza DANE (decisión 2) |
 
-Pendiente: confirmar con quien construye el target la lista exacta de variables de ingreso usadas.
