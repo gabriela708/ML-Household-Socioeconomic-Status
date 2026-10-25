@@ -73,3 +73,38 @@ jefe = personas.loc[personas["P6050"] == 1, ["hogar_id", "P6040", "P3271", "P304
 
 print("jefe:", jefe.shape)
 print("¿un jefe por hogar?", jefe["hogar_id"].is_unique)
+
+
+# %%
+# %%
+# Paso 5: resumir las personas de cada hogar
+import numpy as np
+
+per = personas[["hogar_id", "P6040", "P6090", "P6100"]].copy()
+
+# 1) Marcar a cada persona con 1/0
+per["es_menor15"] = (per["P6040"] < 15).astype(int)
+per["es_mayor65"] = (per["P6040"] >= 65).astype(int)
+per["es_edad_trabajo"] = per["P6040"].between(15, 64).astype(int)
+per["afiliado_salud"] = per["P6090"].map({1: 1, 2: 0})            # 9 (no sabe) queda vacío
+per["subsidiado"] = (per["P6100"] == 3).astype(int)               # 3 = régimen subsidiado
+
+# 2) Agrupar por hogar
+resumen_personas = per.groupby("hogar_id").agg(
+    n_menores15=("es_menor15", "sum"),
+    n_mayores65=("es_mayor65", "sum"),
+    n_edad_trabajo=("es_edad_trabajo", "sum"),
+    prop_afiliados_salud=("afiliado_salud", "mean"),
+    prop_subsidiado=("subsidiado", "mean"),
+).reset_index()
+
+# 3) Razón de dependencia: personas dependientes por cada persona en edad de trabajar
+resumen_personas["razon_dependencia"] = (
+    (resumen_personas["n_menores15"] + resumen_personas["n_mayores65"])
+    / resumen_personas["n_edad_trabajo"].replace(0, np.nan)
+)
+
+print("resumen_personas:", resumen_personas.shape)
+resumen_personas.head()
+
+# %%
