@@ -77,7 +77,7 @@ print("¿un jefe por hogar?", jefe["hogar_id"].is_unique)
 
 # %%
 # %%
-# Paso 5: resumir las personas de cada hogar
+
 import numpy as np
 
 per = personas[["hogar_id", "P6040", "P6090", "P6100"]].copy()
@@ -108,3 +108,7 @@ print("resumen_personas:", resumen_personas.shape)
 resumen_personas.head()
 
 # %%
+En personas un hogar de 4 personas tiene 4 filas. Para resumirlas se hacen dos cosas:
+
+Marcar a cada persona con 1 o 0 según cumpla algo. Por ejemplo, es_menor15 vale 1 si tiene menos de 15 años.
+Agrupar por hogar y sumar (cuántos cumplen) o promediar (qué proporción cumple).
