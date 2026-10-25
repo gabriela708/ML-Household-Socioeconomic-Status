@@ -25,4 +25,4 @@ Este archivo permite trabajar en paralelo. Cambiarlo requiere PR aprobado por la
 ## `data/processed/cv_resultados.csv` — responsable: Gaby
 `modelo, bloque, fold, metrica, valor`
 
-Firmas: Silva ☐ · Juanita ☑ · Gaby ☐
+Firmas: Silva ☑ · Juanita ☑ · Gaby ☐
