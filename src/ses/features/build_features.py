@@ -236,6 +236,18 @@ def filtrar_muestra(X):
 # ---------------------------------------------------------------------------
 # Flujo completo
 # ---------------------------------------------------------------------------
+def depurar_columnas(X):
+    """Quita columnas repetidas o casi vacías (decisión 23)."""
+    # Junta dos productos financieros raros en uno solo
+    X["fin_corriente_o_cdt"] = ((X["fin_cuenta_corriente"] == 1) | (X["fin_cdt"] == 1)).astype(int)
+    X["fin_credito_vivienda_vehiculo"] = ((X["fin_prestamo_vivienda"] == 1) | (X["fin_prestamo_vehiculo"] == 1)).astype(int)
+
+    # Borra las columnas que sobran
+    return X.drop(columns=[
+        "n_edad_trabajo", "fin_ninguno", "tiene_energia", "fin_otro",
+        "fin_cuenta_corriente", "fin_cdt", "fin_prestamo_vivienda", "fin_prestamo_vehiculo",
+    ])
+
 def construir_X():
     """Corre los pasos 1 a 10 y devuelve X final, excluidos y embudo."""
     hogar, personas, ocupados = cargar_datos()
@@ -250,7 +262,8 @@ def construir_X():
     )
     X = limpiar_codigos(X)
     X = renombrar(X)
-    return filtrar_muestra(X)
+    X_final, excluidos, embudo = filtrar_muestra(X)
+    return depurar_columnas(X_final), excluidos, embudo
 
 
 def guardar(X_final, excluidos, embudo):
