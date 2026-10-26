@@ -1,0 +1,5 @@
+modelo,bloque,metrica,media,desv
+dummy,ninguno,f1_macro,0.168,0.0
+logistica,A,f1_macro,0.43,0.007
+logistica,B,f1_macro,0.499,0.007
+logistica,C,f1_macro,0.595,0.012
