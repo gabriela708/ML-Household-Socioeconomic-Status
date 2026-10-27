@@ -182,6 +182,7 @@ nombres_clases = [NOMBRES_CLASES[c] for c in CLASES]
 fig, ejes = plt.subplots(1, 2, figsize=(10, 4.4))
 for ax, bloque in zip(ejes, ["B", "C"]):
     pred = cross_val_predict(construir_pipeline(MODELOS[PRINCIPAL](bloque), bloque), X, y, cv=cv)
+    cm = confusion_matrix(y, pred, labels=CLASES, normalize="true") * 100
     ax.imshow(cm, cmap="Blues", vmin=0, vmax=100)
     for i in range(len(CLASES)):
         for j in range(len(CLASES)):
