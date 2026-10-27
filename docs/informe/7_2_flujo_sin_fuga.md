@@ -1,6 +1,6 @@
 ## 7.2. Flujo reproducible sin fuga de datos
 
-*Responsable: Juanita. *
+*Responsable: Juanita.*
 
 **Partición.** Se debe tener en cuenta que antes de cualquier transformación, los 19.660 hogares se dividieron en 80 % de entrenamiento (15.728) y 20 % de prueba (3.932) con `StratifiedGroupKFold`, estratificando por clase y agrupando por vivienda (`DIRECTORIO`). La estratificación conserva la proporción de las cuatro clases en cada parte, incluida Alta (4,4 %), y el agrupamiento impide que hogares de una misma vivienda queden a ambos lados de la partición, lo que inflaría el desempeño. Dentro del 80 % se definieron cinco folds de validación cruzada con el mismo criterio; el 20 % de prueba queda sellado hasta la entrega final; la Tabla 1 muestra que la distribución de clases es la misma en todas las partes. La partición se guarda como identificadores de hogar en `split_indices.json`, con semilla 42, de modo que los tres integrantes usan exactamente los mismos folds (decisiones 20–22).
 
