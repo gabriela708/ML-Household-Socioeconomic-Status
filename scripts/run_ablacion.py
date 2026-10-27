@@ -8,7 +8,6 @@ contra la línea base, con los mismos 5 folds, las mismas métricas y el mismo
 pipeline sin fuga para todos los modelos.
 
 """
-# %%
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
