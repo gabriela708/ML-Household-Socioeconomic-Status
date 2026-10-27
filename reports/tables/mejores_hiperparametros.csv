@@ -1,0 +1,8 @@
+modelo,hiperparametros,diferencia_con_segundo,f1_macro_media,f1_macro_desv
+baseline_mayoritaria,fijos,,0.168,0.0
+pom,fijos,,0.576,0.01
+lr_multinomial,sin grilla,,0.595,0.013
+lr_l2,{'modelo__C': 1},0.0003,0.595,0.012
+lr_l1,{'modelo__C': 10},0.0011,0.596,0.012
+naive_bayes,{'modelo__var_smoothing': 0.001},0.1647,0.368,0.012
+knn,"{'modelo__knn__n_neighbors': 15, 'modelo__knn__p': 1, 'modelo__reduccion': PCA(n_components=20)}",0.0008,0.549,0.012

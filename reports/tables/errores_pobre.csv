@@ -1,0 +1,8 @@
+modelo,pobres,pobre_a_media_alta_n,pobre_a_media_alta_pct,media_alta,media_alta_a_pobre_n,media_alta_a_pobre_pct
+baseline_mayoritaria,3402,3402,100.0,8625,0,0.0
+pom,3402,138,4.06,8625,140,1.62
+lr_multinomial,3402,151,4.44,8625,295,3.42
+lr_l2,3402,145,4.26,8625,300,3.48
+lr_l1,3402,148,4.35,8625,297,3.44
+naive_bayes,3402,1034,30.39,8625,404,4.68
+knn,3402,513,15.08,8625,325,3.77
