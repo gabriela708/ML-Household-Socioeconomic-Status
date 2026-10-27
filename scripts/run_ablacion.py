@@ -15,7 +15,10 @@ import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import cross_val_predict, cross_validate
+import warnings
 
+# Categorías raras no vistas en un fold → se codifican como ceros (decisión 32).
+warnings.filterwarnings("ignore", message="Found unknown categories")
 from ses.config import ROOT
 from ses.evaluation.metrics import CLASES, MENOR_ES_MEJOR, NOMBRES_CLASES, SCORERS, a_signo_normal
 from ses.models.baseline import evaluar_baseline
@@ -33,13 +36,32 @@ except (ImportError, SyntaxError) as error:
 X, y, cv = cargar_entrenamiento()
 
 
+# C de la logística por bloque: sale de ajuste_hiperparametros.py (decisión 34).
+# Si todavía no se ha corrido el ajuste, usa C = 1 (el valor por defecto) y avisa.
+archivo_C = ROOT / "reports" / "tables" / "mejores_C.csv"
+if archivo_C.exists():
+    C_POR_BLOQUE = pd.read_csv(archivo_C).set_index("bloque")["mejor_C"].to_dict()
+else:
+    C_POR_BLOQUE = {}
+    print("AVISO: no existe mejores_C.csv; la logística usa C = 1. Corre antes ajuste_hiperparametros.py")
+
+
+# C de la logística por bloque: sale de ajuste_hiperparametros.py (decisión 34).
+# Si todavía no se ha corrido el ajuste, usa C = 1 (el valor por defecto) y avisa.
+archivo_C = ROOT / "reports" / "tables" / "mejores_C.csv"
+if archivo_C.exists():
+    C_POR_BLOQUE = pd.read_csv(archivo_C).set_index("bloque")["mejor_C"].to_dict()
+else:
+    C_POR_BLOQUE = {}
+    print("AVISO: no existe mejores_C.csv; la logística usa C = 1. Corre antes ajuste_hiperparametros.py")
+
+# Los dos modelos usan class_weight="balanced" (decisiones 31 y 33).
 MODELOS = {
-    "logistica": lambda: LogisticRegression(max_iter=3000, class_weight="balanced"),
+    "logistica": lambda bloque: LogisticRegression(C=C_POR_BLOQUE.get(bloque, 1.0),
+                                                   max_iter=3000, class_weight="balanced"),
 }
 if POM is not None:
-    MODELOS["pom"] = lambda: POM(class_weight="balanced")
-else:
-    print(f"AVISO: no se pudo usar el POM ({ERROR_POM}); corre solo la logística.")
+    MODELOS["pom"] = lambda bloque: POM(class_weight="balanced")
 
 # Modelo principal del proyecto (el del paper): el POM si está; si no, la logística
 PRINCIPAL = "pom" if "pom" in MODELOS else "logistica"
@@ -67,7 +89,7 @@ print(f"{'baseline':10s} línea base: f1_macro = {f1_base:.3f}")
 
 for nombre, crear_modelo in MODELOS.items():
     for bloque in BLOQUES:
-        pipe = construir_pipeline(crear_modelo(), bloque)
+        pipe = construir_pipeline(crear_modelo(bloque), bloque)
         r = cross_validate(pipe, X, y, cv=cv, scoring=SCORERS)
         guardar(nombre, bloque, r)
         print(f"{nombre:10s} bloque {ETIQUETA_BLOQUE[bloque]:6s}: "
@@ -122,7 +144,7 @@ def barras(ax, metrica, etiquetas_valor=False):
     ax.spines[["top", "right"]].set_visible(False)
 
 
-# 5.1 Figura principal: macro-F1 por bloque
+#  Figura principal: macro-F1 por bloque
 fig, ax = plt.subplots(figsize=(7, 4.2))
 barras(ax, "f1_macro", etiquetas_valor=True)
 ax.set_ylim(0, 0.75)
@@ -134,7 +156,7 @@ fig.tight_layout()
 fig.savefig(figuras / "ablacion.png", dpi=150)
 plt.close(fig)
 
-# 5.2 Las 6 métricas del equipo, un panel por métrica (cada una con su propia escala)
+#  Las 6 métricas del equipo, un panel por métrica (cada una con su propia escala)
 TITULO = {
     "f1_macro": "Macro-F1", "qwk": "QWK", "mae_ordinal": "MAE ordinal (clases)",
     "pct_errores_lejanos": "Errores a distancia ≥ 2", "recall_pobre": "Recall de Pobre",
@@ -153,14 +175,13 @@ fig.tight_layout(rect=(0, 0.06, 1, 0.97))
 fig.savefig(figuras / "ablacion_metricas.png", dpi=150)
 plt.close(fig)
 
-# 5.3 Matrices de confusión del modelo principal: ¿dónde se equivoca?
+# Matrices de confusión del modelo principal: ¿dónde se equivoca?
 #     cross_val_predict da, para cada hogar, la predicción del fold en que fue validación.
 #     Se normaliza por fila: % de cada clase real que cae en cada clase predicha.
 nombres_clases = [NOMBRES_CLASES[c] for c in CLASES]
 fig, ejes = plt.subplots(1, 2, figsize=(10, 4.4))
 for ax, bloque in zip(ejes, ["B", "C"]):
-    pred = cross_val_predict(construir_pipeline(MODELOS[PRINCIPAL](), bloque), X, y, cv=cv)
-    cm = confusion_matrix(y, pred, labels=CLASES, normalize="true") * 100
+    pred = cross_val_predict(construir_pipeline(MODELOS[PRINCIPAL](bloque), bloque), X, y, cv=cv)
     ax.imshow(cm, cmap="Blues", vmin=0, vmax=100)
     for i in range(len(CLASES)):
         for j in range(len(CLASES)):
