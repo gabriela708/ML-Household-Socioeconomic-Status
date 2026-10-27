@@ -185,6 +185,7 @@ def tablas_pom(Xp, y):
         fuera_ic |= (coef < ic_j[0]) | (coef > ic_j[1])
     cols = tabla4.columns[1:]
     tabla4["cambia_signo"] = (tabla4[cols] > 0).nunique(axis=1) > 1
-    tabla4["revisar"] = tabla4["cambia_signo"] | fuera_ic
+   tabla4["no_estimable"] = (tabla4[cols].abs() > 10).any(axis=1)
+   tabla4["revisar"] = (tabla4["cambia_signo"] | fuera_ic) & ~tabla4["no_estimable"]
 
     return tabla2, tabla3, tabla4
