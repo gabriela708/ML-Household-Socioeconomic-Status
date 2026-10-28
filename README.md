@@ -34,15 +34,38 @@ app/             despliegue en Streamlit (entrega final)
 
 ## Reproducir
 
+## Reproducir
+
+**1. Preparar el entorno** (una sola vez)
+
 ```bash
-python -m venv .venv && source .venv/bin/activate   # en Windows: .venv\Scripts\activate
+python -m venv .venv
+source .venv/bin/activate        # en Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 pip install -e .
+```
+
+**2. Correr el flujo completo, en este orden**
+
+```bash
 python scripts/make_target.py
 python scripts/make_features.py
+python scripts/ajuste_hiperparametros.py
+python scripts/run_ablacion.py
 python scripts/run_cv.py
 pytest
 ```
+
+| Paso | Qué genera | Responsable |
+|---|---|---|
+| `make_target.py` | `data/processed/y_hogar.parquet` (clase socioeconómica de cada hogar) | Silva |
+| `make_features.py` | `data/processed/X_hogar.parquet` y `split_indices.json` (partición 80/20 y 5 folds) | Juanita |
+| `ajuste_hiperparametros.py` | `reports/tables/mejores_C.csv`: el mejor C de la logística por bloque | Juanita |
+| `run_ablacion.py` | Ablación A → A+B → A+B+C: tablas en `reports/tables/` y figuras en `reports/figures/` | Juanita |
+| `run_cv.py` | Comparación de modelos candidatos | Gaby |
+| `pytest` | Pruebas: llaves, fuga y conjunto de prueba sellado | Equipo |
+
+> `ajuste_hiperparametros.py` debe correr **antes** de `run_ablacion.py`, porque la ablación lee `mejores_C.csv`.
 
 ## Reglas del equipo
 
