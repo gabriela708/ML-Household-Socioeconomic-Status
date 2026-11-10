@@ -21,7 +21,7 @@ Modelo (igual al del paper y al OrderedModel de statsmodels):
 - β > 0 → mayores odds de estar en una clase más alta. OR = exp(β).
 - Sin constante: los cortes c_0 < c_1 < c_2 cumplen ese papel.
 
-El PPOM no se implementa: queda como siguiente paso (decisiones.md).
+PPOM (entrega final, Gaby): clase `PPOM` y función `tablas_ppom()`, al final de este archivo.
 """
 
 import numpy as np
@@ -189,3 +189,207 @@ def tablas_pom(Xp, y):
     tabla4["revisar"] = (tabla4["cambia_signo"] | fuera_ic) & ~tabla4["no_estimable"]
 
     return tabla2, tabla3, tabla4
+
+
+# ---------------------------------------------------------------------------
+# 3. PPOM: odds proporcionales parciales (entrega final, Gaby)
+# ---------------------------------------------------------------------------
+class PPOM(BaseEstimator, ClassifierMixin):
+    """Odds proporcionales parciales con selección automática, como AUTOFIT del paper.
+
+    Modelo (ecuación 8 del paper, PPOM sin restricciones):
+        P(ses <= j | x) = F(c_j - x'β - z'γ_j),   γ_0 = 0
+    - z son solo las variables que NO cumplen el supuesto de odds proporcionales;
+      el resto conserva un único β para todos los cortes (igual que en el POM).
+    - Si ninguna variable se relaja, el modelo es exactamente el POM.
+
+    Ajustes para que el modelo no se rompa:
+    1. AUTOFIT dentro de cada fold: en `fit` se comparan el POM y las K-1 logísticas
+       binarias (ses > j) SOLO con los datos de entrenamiento del fold. Se relaja la
+       variable si su β del POM queda fuera del IC (nivel `z`) de alguna logística
+       binaria; es el mismo criterio de la tabla 4 de Silva. Así la selección de
+       variables no usa el fold de validación (sin fuga).
+    2. Nunca se relajan variables no estimables (|coef| > 10 en alguna logística
+       binaria, típico de la separación en Alta) ni columnas con menos de
+       `min_casos` hogares distintos de cero.
+    3. Penalización L2 `alpha_gamma` sobre las desviaciones γ: si una desviación no
+       tiene soporte en los datos, se encoge hacia 0 (hacia el POM).
+    4. Si las probabilidades acumuladas se cruzan para un hogar, se fuerzan a ser
+       monótonas antes de calcular P(ses = j); `tasa_cruces(X)` reporta cuántos.
+
+    Parámetros
+    ----------
+    alpha : float
+        Penalización L2 sobre β (0 = como el POM del proyecto, decisión 36).
+    alpha_gamma : float
+        Penalización L2 sobre las desviaciones γ por corte (se ajusta en la CV).
+    z : float
+        Valor crítico del IC del autofit (1,96 = 95 %).
+    min_casos : int
+        Mínimo de hogares con valor distinto de cero para poder relajar una columna.
+    class_weight : None o "balanced"
+        Igual que en el POM.
+    """
+
+    def __init__(self, alpha=0.0, alpha_gamma=1.0, z=1.96, min_casos=30,
+                 class_weight=None, max_iter=3000):
+        self.alpha = alpha
+        self.alpha_gamma = alpha_gamma
+        self.z = z
+        self.min_casos = min_casos
+        self.class_weight = class_weight
+        self.max_iter = max_iter
+
+    # autofit: qué variables violan el supuesto
+    def _autofit(self, X, y):
+        from sklearn.linear_model import LogisticRegression
+
+        pom = POM(alpha=self.alpha, max_iter=self.max_iter).fit(X, y)  # sin pesos, como la tabla 4
+        beta_ref = pom.coef_
+        p = X.shape[1]
+        relajar = np.zeros(p, dtype=bool)
+        estimable = (np.count_nonzero(X, axis=0) >= self.min_casos) & (X.std(axis=0) > 0)
+        k = np.searchsorted(self.classes_, y)
+        Xc = np.c_[np.ones(len(X)), X]
+        for j in range(len(self.classes_) - 1):
+            yj = (k > j).astype(int)
+            lr = LogisticRegression(C=1e6, max_iter=5000).fit(X, yj)       # ≈ sin penalizar
+            b = lr.coef_.ravel()
+            pr = lr.predict_proba(X)[:, 1]
+            H = Xc.T @ (Xc * (pr * (1 - pr))[:, None])
+            ee = np.sqrt(np.clip(np.diag(np.linalg.pinv(H))[1:], 0, None))
+            estimable &= (np.abs(b) <= 10) & (ee > 0)
+            relajar |= np.abs(beta_ref - b) > self.z * ee
+        return relajar & estimable, beta_ref
+
+    # verosimilitud
+    def _desempacar(self, params, p, r, K):
+        beta = params[:p]
+        gamma = np.zeros((r, K - 1))
+        gamma[:, 1:] = params[p:p + r * (K - 2)].reshape(r, K - 2)
+        t = params[p + r * (K - 2):]
+        return beta, gamma, t
+
+    def _perdida(self, params, X, Z, k, w):
+        n, p = X.shape
+        r, K = Z.shape[1], len(self.classes_)
+        beta, gamma, t = self._desempacar(params, p, r, K)
+        c = POM._cortes(t)
+        U = c[None, :] - (X @ beta)[:, None] - Z @ gamma            
+        F = expit(U)
+        Fe = np.c_[np.zeros(n), F, np.ones(n)]
+        fila = np.arange(n)
+        prob = np.clip(Fe[fila, k + 1] - Fe[fila, k], 1e-12, None)
+        f = F * (1 - F)
+
+        perdida = (-np.sum(w * np.log(prob)) + 0.5 * self.alpha * beta @ beta
+                   + 0.5 * self.alpha_gamma * np.sum(gamma ** 2))
+
+     
+        G = np.zeros((n, K - 1))
+        sup = k < K - 1
+        G[fila[sup], k[sup]] -= w[sup] * f[fila[sup], k[sup]] / prob[sup]
+        inf_ = k > 0
+        G[fila[inf_], k[inf_] - 1] += w[inf_] * f[fila[inf_], k[inf_] - 1] / prob[inf_]
+
+        g_beta = -X.T @ G.sum(axis=1) + self.alpha * beta
+        g_gamma = (-Z.T @ G[:, 1:] + self.alpha_gamma * gamma[:, 1:]).ravel()
+        g_c = G.sum(axis=0)
+        g_t = np.array([g_c.sum()] + [np.exp(t[m]) * g_c[m:].sum() for m in range(1, K - 1)])
+        return perdida, np.r_[g_beta, g_gamma, g_t]
+
+    def fit(self, X, y):
+        nombres = list(X.columns) if hasattr(X, "columns") else None
+        X, y = check_X_y(X, y)
+        self.classes_, k = np.unique(y, return_inverse=True)
+        K = len(self.classes_)
+        n, p = X.shape
+
+        self.relajadas_, beta_ref = self._autofit(X, y)
+        Z = X[:, self.relajadas_]
+        r = Z.shape[1]
+
+        w = (n / (K * np.bincount(k)))[k] if self.class_weight == "balanced" else np.ones(n)
+
+        acum = np.cumsum(np.bincount(k))[:-1] / n
+        c0 = np.log(acum / (1 - acum))
+        t0 = np.r_[c0[0], np.log(np.diff(c0))]
+        x0 = np.r_[beta_ref, np.zeros(r * (K - 2)), t0]
+
+        res = minimize(self._perdida, x0, args=(X, Z, k, w), jac=True,
+                       method="L-BFGS-B", options={"maxiter": self.max_iter})
+        self.coef_, self.gamma_, t = self._desempacar(res.x, p, r, K)
+        self.cortes_ = POM._cortes(t)
+        self.convergio_ = bool(res.success)
+        self.n_relajadas_ = int(r)
+        self.n_features_in_ = p
+        self.nombres_ = nombres
+        self.log_verosimilitud_ = -self._perdida(res.x, X, Z, k, np.ones(n))[0] \
+            if self.alpha == 0 and self.alpha_gamma == 0 else np.nan
+        return self
+
+    def _acumuladas(self, X):
+        check_is_fitted(self, "coef_")
+        X = check_array(X)
+        Z = X[:, self.relajadas_]
+        return expit(self.cortes_[None, :] - (X @ self.coef_)[:, None] - Z @ self.gamma_)
+
+    def tasa_cruces(self, X):
+        """Proporción de hogares cuyas probabilidades acumuladas se cruzan."""
+        acum = self._acumuladas(X)
+        return float(np.mean(np.any(np.diff(acum, axis=1) < 0, axis=1)))
+
+    def predict_proba(self, X):
+        acum = np.maximum.accumulate(self._acumuladas(X), axis=1)
+        acum = np.c_[np.zeros(len(acum)), acum, np.ones(len(acum))]
+        return np.diff(acum, axis=1)
+
+    def predict(self, X):
+        return self.classes_[np.argmax(self.predict_proba(X), axis=1)]
+
+
+def tablas_ppom(Xp, y, z=1.96):
+    """Comparación POM vs. PPOM como en el paper (razón de verosimilitud y AIC).
+
+    Usa el 80 % de entrenamiento completo, sin pesos ni penalización (MLE, igual que
+    statsmodels en tablas_pom). Xp: salida de preparar_X_inferencia (con nombres).
+
+    Devuelve (tabla5, tabla6):
+    tabla5: variables relajadas con su coeficiente en cada corte (β + γ_j).
+    tabla6: log-verosimilitud, parámetros, AIC de POM y PPOM y prueba LR.
+    """
+    from scipy.stats import chi2
+
+    y = np.asarray(y)
+    pom = POM(alpha=0.0).fit(Xp.to_numpy(), y)
+    ppom = PPOM(alpha=0.0, alpha_gamma=0.0, z=z).fit(Xp, y)
+
+    Xn = Xp.to_numpy()
+    K = len(pom.classes_)
+    k = np.searchsorted(pom.classes_, y)
+    t = np.r_[pom.cortes_[0], np.log(np.diff(pom.cortes_))]
+    ll_pom = -pom._perdida(np.r_[pom.coef_, t], Xn, k, np.ones(len(y)))[0]
+    ll_ppom = ppom.log_verosimilitud_
+
+    k_pom = Xn.shape[1] + (K - 1)
+    k_ppom = k_pom + ppom.n_relajadas_ * (K - 2)
+    lr = 2 * (ll_ppom - ll_pom)
+    gl = k_ppom - k_pom
+
+    nombres = np.array(Xp.columns)[ppom.relajadas_]
+    beta_r = ppom.coef_[ppom.relajadas_]
+    tabla5 = pd.DataFrame(
+        {f"corte {j + 1}": beta_r + ppom.gamma_[:, j] for j in range(K - 1)}, index=nombres)
+    tabla5.insert(0, "POM", pom.coef_[ppom.relajadas_])
+
+    tabla6 = pd.DataFrame({
+        "log-verosimilitud": [ll_pom, ll_ppom],
+        "parámetros": [k_pom, k_ppom],
+        "AIC": [2 * k_pom - 2 * ll_pom, 2 * k_ppom - 2 * ll_ppom],
+        "convergió": [pom.convergio_, ppom.convergio_],
+    }, index=["POM", "PPOM"])
+    tabla6.loc["PPOM", "LR vs. POM"] = lr
+    tabla6.loc["PPOM", "gl"] = gl
+    tabla6.loc["PPOM", "p LR"] = chi2.sf(lr, gl) if gl > 0 else np.nan
+    tabla6.loc["PPOM", "tasa de cruces"] = ppom.tasa_cruces(Xn)
+    return tabla5, tabla6

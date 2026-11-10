@@ -6,8 +6,8 @@ Todos se comparan con el bloque C (las 32 variables permitidas), para que la
 diferencia entre modelos se deba al modelo y no a la información disponible.
 La ablación A -> B -> C (scripts/run_ablacion.py).
 
-Desbalance: class_weight="balanced" en las logísticas; priors uniformes en
-Naive Bayes; KNN no admite pesos por clase (se reporta como limitación).
+Desbalance: class_weight="balanced" en las logísticas y el PPOM; priors uniformes en
+Naive Bayes, LDA y QDA; KNN no admite pesos por clase (se reporta como limitación).
 
 Uso:
     from ses.models.candidates import CANDIDATOS, construir_busqueda
@@ -16,6 +16,7 @@ Uso:
 """
 
 from sklearn.decomposition import PCA
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
 from sklearn.naive_bayes import GaussianNB
@@ -23,12 +24,15 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import Pipeline
 
 from ses.evaluation.metrics import METRICA_PRINCIPAL, SCORERS
+from ses.models.ordinal import PPOM
 from ses.pipeline import construir_pipeline
 
 BLOQUE_COMPARACION = "C"
 GRILLA_C = [0.01, 0.1, 1, 10]
 GRILLA_K = [5, 15, 31, 51]
 GRILLA_PCA = ["passthrough", PCA(n_components=10), PCA(n_components=20)]
+GRILLA_ALPHA_GAMMA = [0.1, 1, 10]     # penalización de las desviaciones del PPOM
+PRIORS_UNIFORMES = [0.25, 0.25, 0.25, 0.25]   # desbalance: igual que Naive Bayes
 
 
 CANDIDATOS = {
@@ -60,6 +64,29 @@ CANDIDATOS = {
             "modelo__knn__n_neighbors": GRILLA_K,
             "modelo__knn__p": [1, 2],          # 1 = Manhattan, 2 = euclidiana
         },
+        "opciones": {},
+    },
+    # Entrega final: LDA y QDA.
+    # LDA: "svd" no estima la covarianza completa (aguanta colinealidad); "lsqr" permite
+    # encogerla (shrinkage), útil con dummies muy correlacionadas.
+    "lda": {
+        "modelo": LinearDiscriminantAnalysis(priors=PRIORS_UNIFORMES),
+        "grilla": [{"modelo__solver": ["svd"]},
+                   {"modelo__solver": ["lsqr"], "modelo__shrinkage": ["auto", 0.1, 0.5]}],
+        "opciones": {},
+    },
+    # QDA: una covarianza por clase; con dummies que son constantes dentro de una clase
+    # (sobre todo en Alta) la covarianza es singular, por eso siempre con reg_param > 0.
+    "qda": {
+        "modelo": QuadraticDiscriminantAnalysis(priors=PRIORS_UNIFORMES),
+        "grilla": {"modelo__reg_param": [0.01, 0.1, 0.5, 0.9]},
+        "opciones": {},
+    },
+    # Entrega final: PPOM con autofit dentro de cada fold.
+    # alpha = 0 en β, igual que el POM; solo se ajusta alpha_gamma.
+    "ppom": {
+        "modelo": PPOM(alpha=0.0, class_weight="balanced"),
+        "grilla": {"modelo__alpha_gamma": GRILLA_ALPHA_GAMMA},
         "opciones": {},
     },
 }

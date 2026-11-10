@@ -1,0 +1,17 @@
+,POM,corte 1,corte 2,corte 3
+num__n_personas,-1.797,-1.718,-2.265,-2.281
+num__edad_jefe,0.193,0.007,0.158,0.485
+num__educ_jefe,0.401,0.144,0.37,0.98
+num__n_mayores65,0.351,0.414,0.459,0.005
+num__prop_dependientes,-0.327,-0.367,-0.433,0.003
+num__n_cuartos,0.208,0.249,0.205,0.135
+num__n_dormitorios,-0.096,-0.039,0.066,-0.057
+num__prop_subsidiado,-0.717,-0.468,-0.662,-0.679
+num__n_ocupados,1.234,1.374,1.301,1.066
+num__n_cotizantes,0.204,0.815,0.493,0.042
+nom__material_pisos_6.0,1.645,-0.103,1.141,2.352
+nom__estrato_6.0,3.123,-8.253,6.444,2.511
+nom__lugar_cocina_5.0,-0.011,0.369,-1.228,-3.358
+nom__tenencia_vivienda_7.0,-1.52,-1.713,-2.191,0.078
+nom__posicion_ocup_jefe_1.0,-0.223,0.004,-0.501,-0.672
+nom__posicion_ocup_jefe_2.0,1.108,1.388,1.858,0.472

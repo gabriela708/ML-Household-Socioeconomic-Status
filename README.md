@@ -53,6 +53,8 @@ python scripts/make_features.py
 python scripts/ajuste_hiperparametros.py
 python scripts/run_ablacion.py
 python scripts/run_cv.py
+python scripts/run_candidatos_nuevos.py lda qda
+python scripts/run_ppom.py
 pytest
 ```
 
@@ -63,9 +65,12 @@ pytest
 | `ajuste_hiperparametros.py` | `reports/tables/mejores_C.csv`: el mejor C de la logística por bloque | Juanita |
 | `run_ablacion.py` | Ablación A → A+B → A+B+C: tablas en `reports/tables/` y figuras en `reports/figures/` | Juanita |
 | `run_cv.py` | Comparación de modelos candidatos | Gaby |
+| `run_candidatos_nuevos.py` | Agrega LDA y QDA (o cualquier candidato nuevo) a las tablas de `run_cv.py` sin volver a correr los demás | Gaby |
+| `run_ppom.py` | PPOM en A+B y A+B+C: agrega sus filas a las tablas de `run_cv.py` y de la ablación, diagnóstico por fold y tablas 5–6 (POM vs. PPOM, prueba LR y AIC) | Gaby |
 | `pytest` | Pruebas: llaves, fuga y conjunto de prueba sellado | Equipo |
 
 > `ajuste_hiperparametros.py` debe correr **antes** de `run_ablacion.py`, porque la ablación lee `mejores_C.csv`.
+> `run_ppom.py` debe correr **después** de `run_ablacion.py` y `run_cv.py`, porque agrega filas a sus tablas (si se vuelve a correr `run_ablacion.py`, se borran las filas del PPOM de la ablación y hay que correr `run_ppom.py` de nuevo).
 
 ## Reglas del equipo
 
