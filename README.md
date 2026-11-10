@@ -34,8 +34,6 @@ app/             despliegue en Streamlit (entrega final)
 
 ## Reproducir
 
-## Reproducir
-
 **1. Preparar el entorno** (una sola vez)
 
 ```bash
@@ -53,6 +51,7 @@ python scripts/make_features.py
 python scripts/ajuste_hiperparametros.py
 python scripts/run_ablacion.py
 python scripts/run_cv.py
+python scripts/crear_referencia.py
 pytest
 ```
 
@@ -63,10 +62,39 @@ pytest
 | `ajuste_hiperparametros.py` | `reports/tables/mejores_C.csv`: el mejor C de la logística por bloque | Juanita |
 | `run_ablacion.py` | Ablación A → A+B → A+B+C: tablas en `reports/tables/` y figuras en `reports/figures/` | Juanita |
 | `run_cv.py` | Comparación de modelos candidatos | Gaby |
-| `pytest` | Pruebas: llaves, fuga y conjunto de prueba sellado | Equipo |
+| `crear_referencia.py` | `data/reference/referencia_train.csv` y los CSV de ejemplo de `app/ejemplos/` (solo con el 80 % de entrenamiento) | Juanita |
+| `pytest` | Pruebas: llaves, fuga, conjunto de prueba sellado y lógica de la app | Equipo |
 
 > `ajuste_hiperparametros.py` debe correr **antes** de `run_ablacion.py`, porque la ablación lee `mejores_C.csv`.
 
+
+## App de Streamlit
+
+La app **prioriza qué hogares visitar primero** para una evaluación completa de ingreso. No reemplaza la medición oficial de pobreza del DANE.
+
+**Correr la app** (desde la raíz del repositorio, después de preparar el entorno):
+
+```bash
+python -m streamlit run app/app.py
+```
+
+Se abre en el navegador (`http://localhost:8501`). Necesita los modelos en `models/` y los archivos que genera `scripts/crear_referencia.py`.
+
+| Pestaña | Qué hace |
+|---|---|
+| 🏠 Priorizar un hogar | Formulario en lenguaje normal → probabilidad de cada clase y prioridad (alta, media o baja). Un interruptor cambia del modelo A+B (demografía y vivienda) al A+B+C (más trabajo, salud y finanzas) |
+| 📋 Lista de visitas | Sube un CSV con varios hogares y descarga la lista ordenada por prioridad. Plantilla en `app/ejemplos/plantilla.csv` |
+| 📈 Monitoreo | Compara hogares nuevos con 1.000 de entrenamiento (prueba KS y diferencia de proporciones) y muestra un semáforo de drift con la acción recomendada |
+
+| Archivo | Qué tiene |
+|---|---|
+| `app/app.py` | Solo la interfaz |
+| `app/opciones.py` | Textos del formulario y códigos de cada variable (diccionario GEIH 2025 del DANE) |
+| `app/procesar.py` | Validaciones, construcción de la fila que recibe el modelo y regla de prioridad |
+| `src/ses/monitoring/drift.py` | Detección de drift y semáforo (adaptado del cuaderno de clase de MLOps) |
+| `tests/test_app.py` | Pruebas de la app (`pytest`) |
+
+**Coherencia entre entrenamiento y uso:** la app arma una fila con las mismas columnas y códigos que `X_hogar`; la imputación, la codificación y el escalamiento los hace el `Pipeline` guardado en el `.joblib`. Solo se ofrecen las categorías vistas en entrenamiento (decisión 41).
 
 ## Reglas del equipo
 
