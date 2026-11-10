@@ -67,6 +67,7 @@ pytest
 
 > `ajuste_hiperparametros.py` debe correr **antes** de `run_ablacion.py`, porque la ablación lee `mejores_C.csv`.
 
+
 ## Reglas del equipo
 
 1. Nadie trabaja sobre `main`: una rama por tarea (`silva/dia1-io`, `juanita/dia1-matriz-fuga`, `gaby/dia1-metricas`) y *pull request* revisado por otra persona.

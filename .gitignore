@@ -225,3 +225,6 @@ data/processed/*
 !data/interim/.gitkeep
 !data/processed/.gitkeep
 !data/processed/split_indices.json
+ 
+# Modelos provisionales de prueba (los finales sí se suben)
+models/provisional_*
