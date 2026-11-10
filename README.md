@@ -72,6 +72,6 @@ pytest
 
 1. Nadie trabaja sobre `main`: una rama por tarea (`silva/dia1-io`, `juanita/dia1-matriz-fuga`, `gaby/dia1-metricas`) y *pull request* revisado por otra persona.
 2. Semilla única: `SEED = 42` en `config/config.yaml`.
-3. El 20 % de prueba se separa el día 2 y **no se usa en la segunda entrega**: todas las cifras salen de validación cruzada.
+3. El 20 % de prueba se separa el día 2 y **se usa una sola vez**: todas las cifras salen de validación cruzada.
 4. Ninguna variable monetaria entra como predictor (ver `docs/matriz_fuga.md`).
 5. Uso de IA generativa declarado en el informe.
