@@ -25,6 +25,8 @@ for ruta in (APP_DIR, ROOT / "src"):
 
 import opciones as o  # noqa: E402
 import procesar as p  # noqa: E402
+from ses.monitoring.drift import (  # noqa: E402
+    detectar_drift, drift_categorico, drift_predicciones, semaforo)
 
 # Modelos. Provisionales mientras llegan los finales de Gaby (models/pom_AB.joblib, pom_ABC.joblib):
 # cuando lleguen, solo se cambian estas dos rutas.
@@ -57,6 +59,11 @@ PLANTILLA = EJEMPLOS / "plantilla.csv"
 EJEMPLO_SIN_DRIFT = EJEMPLOS / "hogares_sin_drift.csv"
 EJEMPLO_CON_DRIFT = EJEMPLOS / "hogares_con_drift.csv"
 REFERENCIA = ROOT / "data" / "reference" / "referencia_train.csv"
+
+
+@st.cache_data
+def cargar_referencia():
+    return leer_csv(REFERENCIA)
 
 
 def leer_csv(fuente):
@@ -225,4 +232,71 @@ with tab_lista:
                            file_name="lista_de_visitas.csv", mime="text/csv", type="primary")
 
 with tab_monitoreo:
-    st.info("En construcción: comparar hogares nuevos con los de entrenamiento (data drift).")
+    st.markdown(
+        "Un modelo entrenado con datos de **diciembre de 2025 en cabeceras** puede dejar de servir si "
+        "los hogares que llegan son distintos (otra zona, otro año, otra forma de recoger los datos). "
+        "Aquí se comparan los hogares nuevos con una muestra de **1.000 hogares de entrenamiento**."
+    )
+    with st.expander("¿Cómo se decide si hay cambio (drift)?"):
+        st.markdown(
+            "- **Variables numéricas:** prueba de Kolmogorov-Smirnov; hay cambio si el p-valor es menor que 0,05.\n"
+            "- **Variables categóricas y sí/no:** suma de las diferencias de proporciones; hay cambio si pasa de 0,20.\n"
+            "- **Semáforo:** 🟢 hasta 30 % de variables con cambio y ninguna crítica · 🟡 más de 30 % o una "
+            "variable crítica · 🔴 más de 50 % o dos o más variables críticas.\n"
+            "- **Variables críticas:** las de mayor efecto en el modelo (estrato, tamaño del hogar, tenencia, "
+            "pisos, educación del jefe y ocupados)."
+        )
+
+    usar_c_mon = st.toggle("Revisar también las variables de trabajo, salud y finanzas", key="toggle_mon")
+    bloque_mon = "C" if usar_c_mon else "B"
+    fuente = st.radio("Hogares a revisar",
+                      ["Ejemplo sin cambios", "Ejemplo con cambios simulados", "Subir mi archivo"],
+                      horizontal=True)
+    nuevos = None
+    if fuente == "Ejemplo sin cambios":
+        nuevos = leer_csv(EJEMPLO_SIN_DRIFT)
+    elif fuente == "Ejemplo con cambios simulados":
+        nuevos = leer_csv(EJEMPLO_CON_DRIFT)
+        st.caption("Simulación: más hogares de estrato 1 y 2, más arriendo, hogares con un niño más y "
+                   "menos conexiones de gas natural (supuestos en scripts/crear_referencia.py).")
+    else:
+        archivo_mon = st.file_uploader("Archivo CSV de hogares nuevos", type="csv", key="csv_mon")
+        if archivo_mon is not None:
+            nuevos = leer_csv(archivo_mon)
+
+    errores_mon = p.validar_csv(nuevos, bloque_mon) if nuevos is not None else []
+    for e in errores_mon:
+        st.error(e)
+
+    if nuevos is not None and not errores_mon:
+        referencia = cargar_referencia()
+        tabla, tasa = detectar_drift(referencia, nuevos, bloque_mon)
+        color, mensaje_sem, accion = semaforo(tabla, tasa)
+        {"rojo": st.error, "amarillo": st.warning, "verde": st.success}[color](f"### {mensaje_sem}")
+        st.markdown(f"**Acción recomendada:** {accion}")
+
+        m1, m2, m3 = st.columns(3)
+        m1.metric("Variables revisadas", len(tabla))
+        m2.metric("Variables con cambio", int(tabla["drift"].sum()))
+        m3.metric("Críticas con cambio", int((tabla["drift"] & tabla["crítica"]).sum()))
+
+        st.subheader("Detalle por variable")
+        st.dataframe(tabla, hide_index=True)
+
+        variable = st.selectbox("Ver cómo cambió una variable", tabla["variable"].tolist())
+        if variable.startswith("prop_"):
+            st.dataframe(pd.DataFrame({"referencia": referencia[variable].describe(),
+                                       "nuevos": nuevos[variable].describe()}).round(3))
+        else:
+            _, detalle = drift_categorico(referencia[variable], nuevos[variable])
+            etiquetas = {v: k for k, v in o.OPCIONES.get(variable, {}).items()}
+            detalle.index = [etiquetas.get(i, i) for i in detalle.index]
+            st.bar_chart(detalle[["referencia", "nuevos"]], stack=False)
+
+        st.subheader("¿Cambiaron también las predicciones?")
+        valor_pred, detalle_pred = drift_predicciones(cargar_modelo(bloque_mon), referencia, nuevos,
+                                                      bloque_mon, o.CLASES)
+        st.bar_chart(detalle_pred[["referencia", "nuevos"]], stack=False)
+        st.caption(f"Suma de diferencias en la proporción de clases predichas: {valor_pred:.2f}. "
+                   "El monitoreo detecta cambios en los datos, pero no dice si el modelo acierta: para eso "
+                   "se necesitaría el ingreso real de los hogares nuevos.")
