@@ -53,6 +53,10 @@ VALORES_INICIALES = {
 
 COLOR_NIVEL = {"alta": st.error, "media": st.warning, "baja": st.success}
 
+# Streamlit ordena las barras alfabéticamente: se numeran las clases para que salgan en su orden
+# ordinal (Pobre -> Alta) y no como Alta, Media, Pobre, Vulnerable.
+ETIQUETA_CLASE = {k: f"{k + 1}. {nombre}" for k, nombre in o.CLASES.items()}
+
 # Archivos de ejemplo (los genera scripts/crear_referencia.py)
 EJEMPLOS = APP_DIR / "ejemplos"
 PLANTILLA = EJEMPLOS / "plantilla.csv"
@@ -179,7 +183,7 @@ with tab_hogar:
         col_g, col_t = st.columns([2, 1])
         with col_g:
             grafico = pd.DataFrame({"Probabilidad": probas},
-                                   index=pd.Index(list(o.CLASES.values()), name="Clase"))
+                                   index=pd.Index(list(ETIQUETA_CLASE.values()), name="Clase"))
             st.bar_chart(grafico, y="Probabilidad", horizontal=True)
         with col_t:
             for k, nombre in o.CLASES.items():
@@ -290,12 +294,14 @@ with tab_monitoreo:
         else:
             _, detalle = drift_categorico(referencia[variable], nuevos[variable])
             etiquetas = {v: k for k, v in o.OPCIONES.get(variable, {}).items()}
-            detalle.index = [etiquetas.get(i, i) for i in detalle.index]
+            # "código · texto" para que las barras salgan en el orden de los códigos
+            detalle.index = [f"{int(i)} · {etiquetas[i]}" if i in etiquetas else i for i in detalle.index]
             st.bar_chart(detalle[["referencia", "nuevos"]], stack=False)
 
         st.subheader("¿Cambiaron también las predicciones?")
         valor_pred, detalle_pred = drift_predicciones(cargar_modelo(bloque_mon), referencia, nuevos,
                                                       bloque_mon, o.CLASES)
+        detalle_pred.index = list(ETIQUETA_CLASE.values())
         st.bar_chart(detalle_pred[["referencia", "nuevos"]], stack=False)
         st.caption(f"Suma de diferencias en la proporción de clases predichas: {valor_pred:.2f}. "
                    "El monitoreo detecta cambios en los datos, pero no dice si el modelo acierta: para eso "
