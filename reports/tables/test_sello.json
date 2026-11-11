@@ -1,0 +1,16 @@
+{
+  "fecha": "2026-11-10T19:15:25",
+  "modelo": "PPOM",
+  "escenario_final": "C (A+B+C)",
+  "referencia": "B (A+B)",
+  "alpha_gamma": {
+    "C": 1,
+    "B": 10
+  },
+  "tasa_cruces_prueba": {
+    "C": 0.002288911495422177,
+    "B": 0.0
+  },
+  "n_entrenamiento": 15728,
+  "n_prueba": 3932
+}

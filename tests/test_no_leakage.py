@@ -1,7 +1,11 @@
-"""Responsable: Juanita."""
-import pytest
-from ses.features.leakage import assert_no_leakage
+"""Responsable: Gaby. Solo split.py (lo escribe) y evaluar_test.py (evaluación final, una vez) leen test_idx."""
+from pathlib import Path
 
-def test_detecta_variable_prohibida():
-    with pytest.raises(AssertionError):
-        assert_no_leakage(["edad_jefe", "INGLABO"])
+ROOT = Path(__file__).resolve().parents[1]
+PERMITIDOS = {"split.py", "evaluar_test.py"}
+
+def test_nadie_lee_test_idx():
+    for f in list((ROOT / "src").rglob("*.py")) + list((ROOT / "scripts").rglob("*.py")):
+        if f.name in PERMITIDOS:
+            continue
+        assert "test_idx" not in f.read_text(encoding="utf-8"), f"{f} usa test_idx"
