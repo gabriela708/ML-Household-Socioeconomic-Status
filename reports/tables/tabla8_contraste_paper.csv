@@ -1,0 +1,12 @@
+paper,variable,corte,OR,OR_IC95_inf,OR_IC95_sup,p,hallazgo_paper
+Edad del jefe,num__edad_jefe,corte 1,1.007,0.9293,1.0911,0.8655,Significativa (+); única que violó el supuesto
+Edad del jefe,num__edad_jefe,corte 2,1.1713,1.0881,1.2609,0.0,Significativa (+); única que violó el supuesto
+Edad del jefe,num__edad_jefe,corte 3,1.6245,1.3831,1.9081,0.0,Significativa (+); única que violó el supuesto
+Educación del jefe,num__educ_jefe,corte 1,1.1546,1.0706,1.2453,0.0002,Significativa (+): secundaria o más → SES más alto
+Educación del jefe,num__educ_jefe,corte 2,1.4482,1.3596,1.5425,0.0,Significativa (+): secundaria o más → SES más alto
+Educación del jefe,num__educ_jefe,corte 3,2.6641,2.3388,3.0346,0.0,Significativa (+): secundaria o más → SES más alto
+Tamaño del hogar,num__n_personas,corte 1,0.1794,0.16,0.2013,0.0,Significativa (−): más miembros → SES más bajo
+Tamaño del hogar,num__n_personas,corte 2,0.1038,0.0917,0.1175,0.0,Significativa (−): más miembros → SES más bajo
+Tamaño del hogar,num__n_personas,corte 3,0.1022,0.0755,0.1384,0.0,Significativa (−): más miembros → SES más bajo
+Hábito de ahorro,bin__fin_cuenta_ahorros,todos,2.1667,1.972,2.3805,0.0,Significativa (+)
+Sexo del jefe (mujer),nom__sexo_jefe_2.0,todos,0.7241,0.6685,0.7843,0.0,No significativa
