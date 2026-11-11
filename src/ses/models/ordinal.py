@@ -240,7 +240,7 @@ class PPOM(BaseEstimator, ClassifierMixin):
         self.class_weight = class_weight
         self.max_iter = max_iter
 
-    # autofit: qué variables violan el supuesto
+    # ---------------- autofit: qué variables violan el supuesto ----------------
     def _autofit(self, X, y):
         from sklearn.linear_model import LogisticRegression
 
@@ -262,7 +262,7 @@ class PPOM(BaseEstimator, ClassifierMixin):
             relajar |= np.abs(beta_ref - b) > self.z * ee
         return relajar & estimable, beta_ref
 
-    # verosimilitud
+    # ---------------- verosimilitud ----------------
     def _desempacar(self, params, p, r, K):
         beta = params[:p]
         gamma = np.zeros((r, K - 1))
@@ -275,9 +275,9 @@ class PPOM(BaseEstimator, ClassifierMixin):
         r, K = Z.shape[1], len(self.classes_)
         beta, gamma, t = self._desempacar(params, p, r, K)
         c = POM._cortes(t)
-        U = c[None, :] - (X @ beta)[:, None] - Z @ gamma            
+        U = c[None, :] - (X @ beta)[:, None] - Z @ gamma            # n × (K-1)
         F = expit(U)
-        Fe = np.c_[np.zeros(n), F, np.ones(n)]
+        Fe = np.c_[np.zeros(n), F, np.ones(n)]                       # bordes F(-inf)=0, F(inf)=1
         fila = np.arange(n)
         prob = np.clip(Fe[fila, k + 1] - Fe[fila, k], 1e-12, None)
         f = F * (1 - F)
@@ -285,7 +285,7 @@ class PPOM(BaseEstimator, ClassifierMixin):
         perdida = (-np.sum(w * np.log(prob)) + 0.5 * self.alpha * beta @ beta
                    + 0.5 * self.alpha_gamma * np.sum(gamma ** 2))
 
-     
+        # G[i, j] = d(pérdida)/dU[i, j]
         G = np.zeros((n, K - 1))
         sup = k < K - 1
         G[fila[sup], k[sup]] -= w[sup] * f[fila[sup], k[sup]] / prob[sup]
@@ -340,7 +340,7 @@ class PPOM(BaseEstimator, ClassifierMixin):
         return float(np.mean(np.any(np.diff(acum, axis=1) < 0, axis=1)))
 
     def predict_proba(self, X):
-        acum = np.maximum.accumulate(self._acumuladas(X), axis=1)
+        acum = np.maximum.accumulate(self._acumuladas(X), axis=1)   # fuerza P(≤0) ≤ P(≤1) ≤ ...
         acum = np.c_[np.zeros(len(acum)), acum, np.ones(len(acum))]
         return np.diff(acum, axis=1)
 
@@ -393,3 +393,59 @@ def tablas_ppom(Xp, y, z=1.96):
     tabla6.loc["PPOM", "p LR"] = chi2.sf(lr, gl) if gl > 0 else np.nan
     tabla6.loc["PPOM", "tasa de cruces"] = ppom.tasa_cruces(Xn)
     return tabla5, tabla6
+
+
+def tabla_or_ppom(Xp, y, z=1.96, paso=1e-5):
+    """Odds ratios del PPOM con errores estándar e IC 95 %.
+
+    Ajusta el PPOM por máxima verosimilitud (sin pesos ni penalización) con el 80 %
+    completo. Los errores estándar salen de la inversa del Hessiano de la
+    -log-verosimilitud, calculado por diferencias finitas del gradiente analítico.
+
+    - Variables proporcionales: una sola fila (corte = "todos"), igual que en el POM.
+    - Variables relajadas: una fila por corte (β + γ_j).
+    Las numéricas están estandarizadas: el OR es por cada desviación estándar.
+    """
+    from scipy.stats import norm
+
+    y = np.asarray(y)
+    m = PPOM(alpha=0.0, alpha_gamma=0.0, z=z).fit(Xp, y)
+    X = Xp.to_numpy(dtype=float)
+    Z = X[:, m.relajadas_]
+    k = np.searchsorted(m.classes_, y)
+    K, (n, p), r = len(m.classes_), X.shape, Z.shape[1]
+    w = np.ones(n)
+
+    t = np.r_[m.cortes_[0], np.log(np.diff(m.cortes_))]
+    theta = np.r_[m.coef_, m.gamma_[:, 1:].ravel(), t]
+    grad = lambda th: m._perdida(th, X, Z, k, w)[1]
+    H = np.empty((theta.size, theta.size))
+    for i in range(theta.size):
+        e = np.zeros(theta.size)
+        e[i] = paso
+        H[:, i] = (grad(theta + e) - grad(theta - e)) / (2 * paso)
+    cov = np.linalg.pinv((H + H.T) / 2)
+
+    nombres = np.array(Xp.columns)
+    idx_r = {j: i for i, j in enumerate(np.flatnonzero(m.relajadas_))}
+    filas = []
+    for j in range(p):
+        if j not in idx_r:
+            cortes = [("todos", m.coef_[j], cov[j, j])]
+        else:
+            cortes = []
+            for c in range(K - 1):
+                if c == 0:
+                    coef, var = m.coef_[j], cov[j, j]
+                else:
+                    g = p + idx_r[j] * (K - 2) + (c - 1)
+                    coef = m.coef_[j] + m.gamma_[idx_r[j], c]
+                    var = cov[j, j] + cov[g, g] + 2 * cov[j, g]
+                cortes.append((f"corte {c + 1}", coef, var))
+        for corte, coef, var in cortes:
+            ee = np.sqrt(max(var, 0))
+            filas.append({"variable": nombres[j], "corte": corte, "coef": coef, "ee": ee,
+                          "p": 2 * norm.sf(abs(coef / ee)) if ee > 0 else np.nan,
+                          "OR": np.exp(coef), "OR_IC95_inf": np.exp(coef - 1.96 * ee),
+                          "OR_IC95_sup": np.exp(coef + 1.96 * ee)})
+    return pd.DataFrame(filas)
