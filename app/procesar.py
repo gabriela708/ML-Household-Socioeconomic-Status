@@ -18,7 +18,7 @@ import pandas as pd
 from ses.pipeline import BINARIAS, BLOQUES, NOMINALES
 from opciones import CLASES, CODIGOS_POCO_FRECUENTES, OPCIONES, PREGUNTAS, RANGOS
 
-# Umbral provisional de prioridad: lo define Silva con el análisis de costos (decisión 42).
+# Umbral de prioridad: 0,5, confirmado por Silva con el análisis de costos (decisión 49)..
 UMBRAL_PRIORIDAD = 0.5
 
 
