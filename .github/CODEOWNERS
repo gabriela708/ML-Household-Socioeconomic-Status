@@ -1,5 +1,4 @@
-# Reemplazar los alias por los usuarios reales de GitHub.
-*                               @Silva-Geneticist @Juanita-gomsa @gabriela708
+*                               @Silva-Geneticist @JuanitaG07 @gabriela708
 
 /src/ses/io.py                  @Silva-Geneticist
 /src/ses/data/                  @Silva-Geneticist
@@ -9,14 +8,17 @@
 /notebooks/04_*                 @Silva-Geneticist
 /docs/decisiones.md             @Silva-Geneticist
 
-/src/ses/features/              @Juanita-gomsa
-/src/ses/pipeline.py            @Juanita-gomsa
-/scripts/make_features.py       @Juanita-gomsa
-/notebooks/02_*                 @Juanita-gomsa
-/docs/matriz_fuga.md            @Juanita-gomsa
-/docs/diccionario_variables.md  @Juanita-gomsa
-/docs/reduccion_muestra.md      @Juanita-gomsa
-/data/processed/split_indices.json @Juanita-gomsa
+/src/ses/features/              @JuanitaG07
+/src/ses/pipeline.py            @JuanitaG07
+/scripts/make_features.py       @JuanitaG07
+/notebooks/02_*                 @JuanitaG07
+/docs/matriz_fuga.md            @JuanitaG07
+/docs/diccionario_variables.md  @JuanitaG07
+/docs/reduccion_muestra.md      @JuanitaG07
+/data/processed/split_indices.json @JuanitaG07
+/app/                           @JuanitaG07
+/src/ses/monitoring/            @JuanitaG07
+/data/reference/                @JuanitaG07
 
 /src/ses/models/                @gabriela708
 /src/ses/evaluation/            @gabriela708
@@ -25,5 +27,5 @@
 /notebooks/05_*                 @gabriela708
 /tests/                         @gabriela708
 
-/docs/contrato_datos.md         @Silva-Geneticist @Juanita-gomsa @gabriela708
-/docs/informe/                  @Silva-Geneticist @Juanita-gomsa @gabriela708
+/docs/contrato_datos.md         @Silva-Geneticist @JuanitaG07 @gabriela708
+/docs/informe/                  @Silva-Geneticist @JuanitaG07 @gabriela708
