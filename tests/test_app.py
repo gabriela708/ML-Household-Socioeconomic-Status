@@ -140,7 +140,7 @@ def test_datos_muy_distintos_dan_semaforo_rojo():
 # --- el modelo guardado predice igual desde la app ----------------------------------
 def test_app_predice_igual_que_el_modelo():
     import joblib
-    rutas = [ROOT / "models" / n for n in ("pom_AB.joblib", "provisional_pom_B.joblib")]
+    rutas = [ROOT / "models" / n for n in ("ppom_AB.joblib", "provisional_pom_B.joblib")]
     ruta = next((r for r in rutas if r.exists()), None)
     if ruta is None:
         pytest.skip("Todavía no hay modelo guardado en models/")
@@ -151,4 +151,3 @@ def test_app_predice_igual_que_el_modelo():
         fila = p.construir_fila(resp, "B")
         directo = modelo.predict_proba(d.iloc[[i]][BLOQUES["B"]])
         assert np.allclose(modelo.predict_proba(fila), directo)
-        

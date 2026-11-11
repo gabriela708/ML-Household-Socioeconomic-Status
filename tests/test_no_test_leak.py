@@ -2,7 +2,7 @@
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PERMITIDOS = {"split.py"}  # único archivo que escribe test_idx
+PERMITIDOS = {"split.py", "evaluar_test.py"} 
 
 def test_nadie_lee_test_idx():
     for f in list((ROOT / "src").rglob("*.py")) + list((ROOT / "scripts").rglob("*.py")):

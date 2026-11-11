@@ -51,6 +51,8 @@ python scripts/make_features.py
 python scripts/ajuste_hiperparametros.py
 python scripts/run_ablacion.py
 python scripts/run_cv.py
+python scripts/run_candidatos_nuevos.py lda qda
+python scripts/run_ppom.py
 python scripts/crear_referencia.py
 pytest
 ```
@@ -62,10 +64,13 @@ pytest
 | `ajuste_hiperparametros.py` | `reports/tables/mejores_C.csv`: el mejor C de la logística por bloque | Juanita |
 | `run_ablacion.py` | Ablación A → A+B → A+B+C: tablas en `reports/tables/` y figuras en `reports/figures/` | Juanita |
 | `run_cv.py` | Comparación de modelos candidatos | Gaby |
+| `run_candidatos_nuevos.py` | Agrega LDA y QDA (o cualquier candidato nuevo) a las tablas de `run_cv.py` sin volver a correr los demás | Gaby |
+| `run_ppom.py` | PPOM en A+B y A+B+C: agrega sus filas a las tablas de `run_cv.py` y de la ablación, diagnóstico por fold y tablas 5–6 (POM vs. PPOM, prueba LR y AIC) | Gaby |
 | `crear_referencia.py` | `data/reference/referencia_train.csv` y los CSV de ejemplo de `app/ejemplos/` (solo con el 80 % de entrenamiento) | Juanita |
 | `pytest` | Pruebas: llaves, fuga, conjunto de prueba sellado y lógica de la app | Equipo |
 
 > `ajuste_hiperparametros.py` debe correr **antes** de `run_ablacion.py`, porque la ablación lee `mejores_C.csv`.
+> `run_ppom.py` debe correr **después** de `run_ablacion.py` y `run_cv.py`, porque agrega filas a sus tablas (si se vuelve a correr `run_ablacion.py`, se borran las filas del PPOM de la ablación y hay que correr `run_ppom.py` de nuevo).
 
 
 ## App de Streamlit
@@ -82,7 +87,7 @@ Se abre en el navegador (`http://localhost:8501`). Necesita los modelos en `mode
 
 | Pestaña | Qué hace |
 |---|---|
-| 🏠 Priorizar un hogar | Formulario en lenguaje normal → probabilidad de cada clase y prioridad (alta, media o baja). Un interruptor cambia del modelo A+B (demografía y vivienda) al A+B+C (más trabajo, salud y finanzas) |
+| 🏠 Priorizar un hogar | Formulario en lenguaje normal → probabilidad de cada clase y prioridad (alta, media o baja). Por defecto usa el modelo final A+B+C (decisión 44); al apagar el interruptor usa el A+B (solo demografía y vivienda) |
 | 📋 Lista de visitas | Sube un CSV con varios hogares y descarga la lista ordenada por prioridad. Plantilla en `app/ejemplos/plantilla.csv` |
 | 📈 Monitoreo | Compara hogares nuevos con 1.000 de entrenamiento (prueba KS y diferencia de proporciones) y muestra un semáforo de drift con la acción recomendada |
 
@@ -94,7 +99,7 @@ Se abre en el navegador (`http://localhost:8501`). Necesita los modelos en `mode
 | `src/ses/monitoring/drift.py` | Detección de drift y semáforo (adaptado del cuaderno de clase de MLOps) |
 | `tests/test_app.py` | Pruebas de la app (`pytest`) |
 
-**Coherencia entre entrenamiento y uso:** la app arma una fila con las mismas columnas y códigos que `X_hogar`; la imputación, la codificación y el escalamiento los hace el `Pipeline` guardado en el `.joblib`. Solo se ofrecen las categorías vistas en entrenamiento (decisión 41).
+**Coherencia entre entrenamiento y uso:** la app arma una fila con las mismas columnas y códigos que `X_hogar`; la imputación, la codificación y el escalamiento los hace el `Pipeline` guardado en el `.joblib`. Solo se ofrecen las categorías vistas en entrenamiento (decisión 47).
 
 ## Reglas del equipo
 

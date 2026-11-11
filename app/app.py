@@ -28,11 +28,11 @@ import procesar as p  # noqa: E402
 from ses.monitoring.drift import (  # noqa: E402
     detectar_drift, drift_categorico, drift_predicciones, semaforo)
 
-# Modelos. Provisionales mientras llegan los finales de Gaby (models/pom_AB.joblib, pom_ABC.joblib):
-# cuando lleguen, solo se cambian estas dos rutas.
+# Modelos finales (Gaby, decisiones 43-45): PPOM entrenado con el 80 % completo, guardado como
+# Pipeline (prep + modelo) por scripts/evaluar_test.py.
 RUTAS_MODELO = {
-    "B": ROOT / "models" / "provisional_pom_B.joblib",
-    "C": ROOT / "models" / "provisional_pom_C.joblib",
+    "B": ROOT / "models" / "ppom_AB.joblib",
+    "C": ROOT / "models" / "ppom_ABC.joblib",
 }
 
 # Valores con los que arranca el formulario: un hogar típico del entrenamiento (medianas y modas)
@@ -105,7 +105,8 @@ def campo(var):
 st.set_page_config(page_title="Priorización de hogares", page_icon="🏠", layout="wide")
 st.title("🏠 ¿A qué hogar visitar primero?")
 st.markdown(
-    "Con datos fáciles de observar (quiénes viven en el hogar y cómo es la vivienda), el modelo "
+    "Con datos del hogar que no son el ingreso (quiénes viven ahí, cómo es la vivienda y, si se "
+    "tienen, su situación de trabajo, salud y productos financieros), el modelo "
     "estima la probabilidad de que un hogar sea **Pobre, Vulnerable, Media o Alta** según las "
     "clases del DANE, y sugiere a cuáles programar primero una **evaluación completa de ingreso**."
 )
@@ -115,7 +116,9 @@ st.info("⚠️ Herramienta de priorización. **No reemplaza la medición oficia
 with st.sidebar:
     st.header("Sobre el modelo")
     st.markdown(
-        "- **Modelo:** regresión logística ordinal (POM) con pesos balanceados.\n"
+        "- **Modelo:** regresión logística ordinal de odds proporcionales parciales (PPOM).\n"
+        "- **Escenario por defecto:** A+B+C (demografía, vivienda, trabajo, salud y finanzas); "
+        "A+B al apagar el interruptor.\n"
         "- **Datos:** GEIH diciembre 2025, 15.728 hogares de cabeceras (80 % de entrenamiento).\n"
         f"- **Regla de prioridad:** P(Pobre) + P(Vulnerable) ≥ {p.UMBRAL_PRIORIDAD:.0%}.\n"
         "- **No usa el ingreso** ni ninguna variable monetaria."
@@ -130,9 +133,9 @@ tab_hogar, tab_lista, tab_monitoreo = st.tabs(
 # ---------------------------------------------------------------------------
 with tab_hogar:
     usar_c = st.toggle(
-        "Tengo datos de trabajo, salud y productos financieros del hogar",
-        help="Activa el modelo A+B+C. Es más preciso, pero usa información más cercana al ingreso "
-             "y más difícil de verificar en una visita corta.")
+        "Tengo datos de trabajo, salud y productos financieros del hogar", value=True,
+        help="Encendido: modelo final A+B+C (decisión 44). Apagado: modelo A+B, solo con demografía y "
+             "vivienda, para cuando no se tiene esa información (por ejemplo, en una visita corta).")
     bloque = "C" if usar_c else "B"
 
     with st.form("formulario_hogar"):
@@ -204,7 +207,7 @@ with tab_lista:
         "que la plantilla."
     )
     usar_c_lista = st.toggle("El archivo trae datos de trabajo, salud y productos financieros",
-                             key="toggle_lista")
+                             value=True, key="toggle_lista")
     bloque_lista = "C" if usar_c_lista else "B"
 
     col_p, col_e = st.columns(2)
@@ -251,7 +254,8 @@ with tab_monitoreo:
             "pisos, educación del jefe y ocupados)."
         )
 
-    usar_c_mon = st.toggle("Revisar también las variables de trabajo, salud y finanzas", key="toggle_mon")
+    usar_c_mon = st.toggle("Revisar también las variables de trabajo, salud y finanzas", value=True,
+                           key="toggle_mon")
     bloque_mon = "C" if usar_c_mon else "B"
     fuente = st.radio("Hogares a revisar",
                       ["Ejemplo sin cambios", "Ejemplo con cambios simulados", "Subir mi archivo"],

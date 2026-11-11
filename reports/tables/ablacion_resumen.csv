@@ -41,3 +41,15 @@ pom,C,pct_errores_lejanos,0.019,0.001
 pom,C,qwk,0.733,0.006
 pom,C,recall_alta,0.826,0.043
 pom,C,recall_pobre,0.668,0.014
+ppom,B,f1_macro,0.506,0.006
+ppom,B,mae_ordinal,0.519,0.008
+ppom,B,pct_errores_lejanos,0.058,0.003
+ppom,B,qwk,0.618,0.008
+ppom,B,recall_alta,0.816,0.015
+ppom,B,recall_pobre,0.56,0.012
+ppom,C,f1_macro,0.597,0.009
+ppom,C,mae_ordinal,0.387,0.007
+ppom,C,pct_errores_lejanos,0.024,0.003
+ppom,C,qwk,0.738,0.006
+ppom,C,recall_alta,0.853,0.023
+ppom,C,recall_pobre,0.695,0.011

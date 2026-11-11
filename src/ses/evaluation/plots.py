@@ -42,6 +42,9 @@ NOMBRE_MODELO = {
     "lr_l1": "Logística L1 (Lasso)",
     "naive_bayes": "Naive Bayes",
     "knn": "KNN",
+    "ppom": "Logística ordinal parcial (PPOM)",
+    "lda": "LDA",
+    "qda": "QDA",
 }
 TITULO_METRICA = {
     "f1_macro": "Macro-F1", "qwk": "QWK", "mae_ordinal": "MAE ordinal (clases)",
